@@ -1,11 +1,20 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const nodemailer = require('nodemailer');
 const ApiData = require('./modal/api-model');
 
 const app = express();
 const PORT = 5001;
 app.use(bodyParser.json());
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'r.kushal729@gmail.com',  
+        pass: 'fqtp fbch gexd wbey',   
+    },
+});
 
 app.get('/', async (req, res) => {
     let data;
@@ -93,8 +102,23 @@ app.delete('/delete/:id', async (req,res) => {
 
 app.post('/api/send-email', (req,res) => {
    const {to, cc, bcc, subject, email_body} = req.body;
-   console.log('body ' + req.body);
-   return res.status(200).json({"status":"success","data":req.body});
+   // console.log('body ' + req.body);
+   const mailOptions = {
+    from: 'r.kushal729@gmail.com',
+    to: to, 
+    subject: subject,
+    text: email_body
+    };
+    if(cc) mailOptions.cc = cc;
+    if(bcc) mailOptions.bcc = bcc;
+    // return res.status(200).json({"status":"success","mail_data":mailOptions});
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            return res.status(500).send(error.toString());
+        }
+       return res.status(200).send('Email sent: ' + info.response);
+    });
 });
 
 mongoose.connect('mongodb://localhost:27017/api-db')
