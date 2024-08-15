@@ -91,6 +91,12 @@ app.delete('/delete/:id', async (req,res) => {
     return res.status(200).json({"status":"success","msg":"deleted"});    
 });
 
+app.post('/api/send-email', (req,res) => {
+   const {to, cc, bcc, subject, email_body} = req.body;
+   console.log('body ' + req.body);
+   return res.status(200).json({"status":"success","data":req.body});
+});
+
 mongoose.connect('mongodb://localhost:27017/api-db')
 .then(() => {
     app.listen(PORT, (err) => {
